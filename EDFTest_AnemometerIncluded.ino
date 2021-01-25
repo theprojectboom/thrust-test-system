@@ -14,6 +14,10 @@ volatile bool start = true; //tracks when a new anemometer measurement starts
 volatile unsigned int avgWindCount = 0; //stores anemometer relay counts for doing average wind speed
 float aSetting = 60.0; //wind speed setting to signal alarm
 
+// Below 2 lines are from Johnathan. A0 pin from original changed to A3. Should not have any conflicts.*
+const int sensorPin = A3;
+float sensorValue;
+
 void setup()
 {
   Serial.begin(9600);
@@ -52,10 +56,6 @@ detachInterrupt(interruptPin); //shut off wind speed measurement interrupt until
     float wSpeedMPH = getWindMPH(aFreq); //calculate wind speed in MPH, note that the 2.5 comes from anemometer data sheet
 
     
-Friday, December 16, 2016
-Measuring Wind Speed with an Anemometer and Arduino
-In this video we look at how to measure wind speed using an anemometer and Arduino. This approach will work on both ARM and AVR based Arduinos.
-
 
 
 //*****************Arduino anemometer sketch******************************
@@ -172,4 +172,17 @@ void anemometerISR() {
   Serial.print("PREVoltage_");
   Serial.println(prevoltage);
   Serial.println("-----------------");
+    
+     // Johnathan's sensor data
+  sensorValue = (analogRead(sensorPin)/1024.0)*5.0;
+  Serial.print("The data-line voltage is ");
+  Serial.print(sensorValue);
+  Serial.println(" Volts.");
+  Serial.print("\n");
+  sensorValue = abs(sensorValue-2.5)/0.0133;
+  Serial.print("The measured current is ");
+  Serial.print(sensorValue);
+  Serial.println(" Amps.");
+  Serial.print("\n");
+  delay(500.0);
 }
