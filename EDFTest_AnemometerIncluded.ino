@@ -14,6 +14,17 @@ volatile bool start = true; //tracks when a new anemometer measurement starts
 volatile unsigned int avgWindCount = 0; //stores anemometer relay counts for doing average wind speed
 float aSetting = 60.0; //wind speed setting to signal alarm
 
+// Arduino with load cell
+// Put two known loads on the sensor and take readings. Put those values
+// here!!!!!!!!!!!!!!!!
+float aReading = 192.0;
+float aLoad = 15.0; // lbs.
+float bReading = 344.0;
+float bLoad = 24.3; // lbs.
+
+long time = 0;
+int interval = 200; // Take a reading every 200 ms
+
 // Below 2 lines are from Johnathan. A0 pin from original changed to A3. Should not have any conflicts.*
 const int sensorPin = A3;
 float sensorValue;
@@ -24,7 +35,7 @@ void setup()
 
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
-  pinMode(13, OUTPUT); //setup LED pin to signal high wind alarm condition
+  pinMode(13, OUTPUT); //setup LED pin to signal high wind alarm condition. Won't be used!!!!!
   pinMode(interruptPin, INPUT_PULLUP); //set interrupt pin to input pullup
   attachInterrupt(interruptPin, anemometerISR, RISING); //setup interrupt on anemometer input pin, interrupt will occur whenever falling edge is detected
   dataTimer = millis(); //reset loop timer
@@ -153,6 +164,18 @@ void anemometerISR() {
   Serial.print("Time_");
   Serial.println(Time);
 
+  float newReading = analogRead(5);
+  // Calculate load based on A and B readings above
+  float load = ((bLoad - aLoad)/(bReading - aReading)) * (newReading - aReading) + aLoad;
+  
+  // millis returns the number of milliseconds since the board started the current program
+  if(millis() > time + interval) {
+    Serial.print("Reading: ");
+    Serial.print(newReading,1); // 1 decimal place
+    Serial.print("  Load: ");
+    Serial.println(load,1);  // 1 decimal place, println adds a carriage return
+    time = millis();
+
   // Voltage Math. Calculates from prevoltage to
   // voltage by 34.093. ONLY ONE DIGIT FOR SOME
   // REASON!
@@ -185,4 +208,5 @@ void anemometerISR() {
   Serial.println(" Amps.");
   Serial.print("\n");
   delay(500.0);
+
 }
