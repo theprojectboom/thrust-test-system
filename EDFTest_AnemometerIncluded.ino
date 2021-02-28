@@ -29,26 +29,6 @@ int interval = 200; // Take a reading every 200 ms
 const int sensorPin = A3;
 float sensorValue;
 
-void setup()
-{
-  Serial.begin(9600);
-
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  pinMode(13, OUTPUT); //setup LED pin to signal high wind alarm condition. Won't be used!!!!!
-  pinMode(interruptPin, INPUT_PULLUP); //set interrupt pin to input pullup
-  attachInterrupt(interruptPin, anemometerISR, RISING); //setup interrupt on anemometer input pin, interrupt will occur whenever falling edge is detected
-  dataTimer = millis(); //reset loop timer
-}
-
-void loop()
-{
-  // Baseline Temperature in Celsius
-  if (Time < 300) {
-    Serial.print("Baseline Temperature in Celsius = ");
-    Serial.println(-40 + 0.488155 * (analogRead(A0) - 20));
-
-  }
 
  unsigned long rTime = millis();
   if((rTime - sTime) > 2500) pulseTime = 0; //if the wind speed has dropped below 1MPH than set it to zero
@@ -87,6 +67,15 @@ void setup() {
   pinMode(interruptPin, INPUT_PULLUP); //set interrupt pin to input pullup
   attachInterrupt(interruptPin, anemometerISR, RISING); //setup interrupt on anemometer input pin, interrupt will occur whenever falling edge is detected
   dataTimer = millis(); //reset loop timer
+
+  Serial.begin(9600);
+
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(13, OUTPUT); //setup LED pin to signal high wind alarm condition. Won't be used!!!!!
+  pinMode(interruptPin, INPUT_PULLUP); //set interrupt pin to input pullup
+  attachInterrupt(interruptPin, anemometerISR, RISING); //setup interrupt on anemometer input pin, interrupt will occur whenever falling edge is detected
+  dataTimer = millis(); //reset loop timer
 }
 
 void loop() {
@@ -96,7 +85,12 @@ void loop() {
      
   if((rTime - dataTimer) > 1800){ //See if it is time to transmit
 
- 
+
+  // Baseline Temperature in Celsius
+  if (Time < 300) {
+    Serial.print("Baseline Temperature in Celsius = ");
+    Serial.println(-40 + 0.488155 * (analogRead(A0) - 20));
+
 
    
     detachInterrupt(interruptPin); //shut off wind speed measurement interrupt until done communication
@@ -209,4 +203,9 @@ void anemometerISR() {
   Serial.print("\n");
   delay(500.0);
 
+}
+
+setup() {
+}
+loop()  {
 }
