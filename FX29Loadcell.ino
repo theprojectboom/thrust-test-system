@@ -2,6 +2,8 @@
 
 #include <Wire.h>
 
+constexpr int LOG_INTERVAL = 500;
+
 constexpr int I2C_ADDRESS = 0x28;
 constexpr int SCALE_SPAN  = 1500;
 constexpr int ZERO_OFFSET = 1000;
@@ -31,6 +33,9 @@ void setup() {
 }
 
 void loop() {
+   static unsigned long last_time = 0;
+   unsigned long now = millis();
+
    int data_raw = read_raw();
    int data_offset = data_raw - calib_offset - ZERO_OFFSET;
 
@@ -40,7 +45,8 @@ void loop() {
    if(Serial.available()) {
       switch(Serial.read()) {
          case 'b':
-            start_time = millis();
+            start_time = now;
+            last_time = 0;
             sending = true;
             break;
          case 'e':
@@ -52,9 +58,8 @@ void loop() {
       }
    }
 
-   if(sending) {
-      unsigned long time = millis() - start_time;
-      Serial.print(time);
+   if(sending && now - last_time > LOG_INTERVAL) {
+      Serial.print(now);
       Serial.print(',');
       Serial.print(data_raw);
       Serial.print(',');
@@ -64,5 +69,6 @@ void loop() {
       Serial.print(',');
       Serial.print(data_n);
       Serial.println();
+      last_time = now;
    }
 }
