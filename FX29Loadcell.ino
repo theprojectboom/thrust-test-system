@@ -21,7 +21,10 @@ int read_raw() {
 
    // Read_DF2 command
    if(Wire.requestFrom(I2C_ADDRESS, 2)) {
-      return (Wire.read() & 0x3F << 8) | (Wire.read() & 0xFF);
+      int val = 0;
+      val |= (Wire.read() & 0x3f) << 8;
+      val |= Wire.read() & 0xff;
+      return val;
    }
 
    return 0;
